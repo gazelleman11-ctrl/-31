@@ -14,6 +14,8 @@
 | [requirements.md](requirements.md) | アプリの目的・利用シーン・機能要件/非機能要件をまとめる |
 | [input_items.md](input_items.md) | ユーザーが入力する項目（クレーム内容の要点など）を定義する |
 | [output_format.md](output_format.md) | AIが生成する報告書（社外用/社内用）の文面構成とWord出力仕様を定義する |
+| [ui_design.md](ui_design.md) | 入力〜確認〜出力の画面構成・画面遷移・ワイヤーフレームを定義する |
+| [development_procedure.md](development_procedure.md) | 実装フェーズで何をどの順番で進めるかをまとめた開発手順書 |
 | [CLAUDE.md](CLAUDE.md) | 今後Claude Code等のAIアシスタントと開発を進める際の方針・ルールをまとめる |
 
 ### 読む順番（初めての方向け）
@@ -21,7 +23,9 @@
 1. **requirements.md** — まず「何のためのアプリか」「誰が使うか」「どんな機能が必要か」を確認します。
 2. **input_items.md** — ユーザーがアプリに何を入力するのかを具体化します。
 3. **output_format.md** — AIが出力する報告書がどんな形式・構成になるかを確認します。
-4. **CLAUDE.md** — 実装フェーズに入るときの開発ルール・進め方を確認します。
+4. **ui_design.md** — 入力から出力までの画面イメージを確認します。
+5. **development_procedure.md** — 実装をどのフェーズ・順番で進めるかを確認します。
+6. **CLAUDE.md** — 実装フェーズに入るときの開発ルール・進め方を確認します。
 
 ## 現在のステータス
 
