@@ -53,6 +53,7 @@ flowchart LR
   - 生成AI APIキーなど、秘匿情報の管理方法（環境変数、`.env` 等）を決め、`.gitignore` に反映する。
   - Lint／フォーマッタ等、最低限の開発ルールを設定する。
 - **完了条件**：ローカルで「Hello World」相当の最小画面／処理が動作すること。
+- **✅ 完了内容（2026-07-19）**：`app.py`（Streamlitエントリーポイント）、`requirements.txt`、`.env.example`、`.gitignore`、`pyproject.toml`（black/ruff設定）を作成。`pip install -r requirements.txt` → `streamlit run app.py` でローカル起動し、ブラウザ表示・ヘルスチェック（`/_stcore/health`）が正常であることを確認済み。
 
 ### Phase 3：入力画面の実装
 
@@ -112,7 +113,7 @@ flowchart LR
 |---|---|---|---|
 | Phase 0：要件・仕様の最終確認 | 2026-07-19 | 未定 | 完了 |
 | Phase 1：技術スタック選定 | 2026-07-19 | 未定 | 完了 |
-| Phase 2：開発環境構築 | 未定 | 未定 | 未着手 |
+| Phase 2：開発環境構築 | 2026-07-19 | 未定 | 完了 |
 | Phase 3：入力画面の実装 | 未定 | 未定 | 未着手 |
 | Phase 4：AI生成機能の実装 | 未定 | 未定 | 未着手 |
 | Phase 5：プレビュー・編集画面の実装 | 未定 | 未定 | 未着手 |

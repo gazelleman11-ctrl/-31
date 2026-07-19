@@ -15,9 +15,17 @@
 
 ## 現在のフェーズ
 
-**[development_procedure.md](development_procedure.md) Phase 1（技術スタック選定）完了、Phase 2（開発環境構築）着手前**
+**[development_procedure.md](development_procedure.md) Phase 2（開発環境構築）完了、Phase 3（入力画面の実装）着手前**
 
-要件定義（Phase 0）は完了し、技術スタックも下記のとおり決定した。次に取り組むのは Phase 2：開発環境構築（プロジェクト雛形の作成、`.env`／`.gitignore` の整備等）。
+要件定義（Phase 0）・技術スタック選定（Phase 1）に続き、Phase 2で以下を整備した。
+
+- `app.py`：Streamlitアプリのエントリーポイント（現時点は動作確認用の最小画面のみ）
+- `requirements.txt`：`streamlit` / `anthropic` / `python-docx` / `python-dotenv`
+- `.env.example`：APIキー等の環境変数のひな形（`ANTHROPIC_API_KEY`）。実際の値は `.env` に設定し、Gitにはコミットしない
+- `.gitignore`：`.env`、`.venv/`、生成される `.docx` ファイル等を除外
+- `pyproject.toml`：black／ruff（フォーマッタ・Lint）の最低限の設定
+
+`streamlit run app.py` でローカル起動し、ブラウザ表示・ヘルスチェックが正常に動作することを確認済み。次に取り組むのは Phase 3：入力画面の実装。
 
 ## 開発方針（実装フェーズに入ったら）
 
@@ -39,9 +47,12 @@
 
 > 生成AIの本番採用可否・セキュリティ確認は未完了のため、[requirements.md](requirements.md) 9章のチェック項目として引き続き管理する。
 
-## コーディング規約（実装開始後に追記）
+## コーディング規約
 
-- （実装フェーズに入ったら、使用言語・フレームワークが決まり次第、命名規則やディレクトリ構成のルールをここに追記する）
+- 言語：Python 3系。命名規則はPEP 8に従う（変数・関数は `snake_case`）。
+- フォーマッタ／Lint：`black` と `ruff`（設定は [pyproject.toml](pyproject.toml)）。コミット前に整形・Lintを通す。
+- ディレクトリ構成：現時点ではMVPのため `app.py` 1ファイルに集約する。機能が増えて肥大化してきたら、その時点でモジュール分割を検討する（先回りした分割はしない）。
+- 秘匿情報：APIキー等は `.env`（Git管理外）で管理し、コード中にハードコーディングしない。
 
 ## Claude Codeへの依頼時の注意事項
 
