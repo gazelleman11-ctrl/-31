@@ -10,12 +10,14 @@
 - 要件定義：[requirements.md](requirements.md)
 - 入力項目：[input_items.md](input_items.md)
 - 出力フォーマット：[output_format.md](output_format.md)
+- 画面設計：[ui_design.md](ui_design.md)
+- 開発手順：[development_procedure.md](development_procedure.md)
 
 ## 現在のフェーズ
 
-**要件定義フェーズ**（実装コードはまだ書かない）
+**[development_procedure.md](development_procedure.md) Phase 1（技術スタック選定）完了、Phase 2（開発環境構築）着手前**
 
-このフェーズでは、`requirements.md` / `input_items.md` / `output_format.md` の内容を、実際の業務に合わせて具体化・合意することを優先する。内容が固まるまでは実装（コーディング）に着手しない。
+要件定義（Phase 0）は完了し、技術スタックも下記のとおり決定した。次に取り組むのは Phase 2：開発環境構築（プロジェクト雛形の作成、`.env`／`.gitignore` の整備等）。
 
 ## 開発方針（実装フェーズに入ったら）
 
@@ -24,14 +26,18 @@
 - 過剰な抽象化・将来を見越した汎用設計はしない。今必要な機能だけをシンプルに実装する。
 - クレーム内容には個人情報・機微情報が含まれる可能性があるため、取り扱いには十分注意する（ログ出力やAIへの送信内容に個人情報を含めないなど）。
 
-## 技術スタック（未定）
+## 技術スタック（Phase 1で決定・2026-07-19時点）
 
-現時点では技術スタックは未確定。実装開始前に以下を決定し、このファイルを更新する。
+- [x] アプリ形態／UI形式：**Streamlit（Python）による社内向けWebアプリ**
+  - フロントエンドとバックエンドを分けず、1つのPythonアプリとして実装する。
+  - `ui_design.md` のカレンダー入力・チェックボックス・ラジオボタン・タブ切り替えは、いずれもStreamlit標準コンポーネント（`st.date_input` / `st.multiselect` / `st.radio` / `st.tabs` 等）で実現する。
+- [x] バックエンド言語・フレームワーク：**Python 3系 + Streamlit**（上記と同一。別途バックエンドは持たない）
+- [x] 利用する生成AI（API）：**Anthropic Claude API**
+  - 現時点では**プロトタイプ・テスト用の採用**であり、本番運用でこのまま使うかは未確定。[requirements.md](requirements.md) 9章の「利用する生成AIサービスの選定（社内のセキュリティポリシー含む）」が正式決定するまでは、テスト用途に留める。
+  - APIキーは環境変数（例：`ANTHROPIC_API_KEY`）で管理し、リポジトリにはコミットしない（Phase 2で `.env` 運用と `.gitignore` を整備する）。
+- [x] Word（.docx）生成方法：**`python-docx` ライブラリ**（Python/Streamlit構成と親和性が高いため採用）
 
-- [ ] フロントエンド／UI形式（Webアプリ／デスクトップアプリ／CLI等）
-- [ ] バックエンド言語・フレームワーク
-- [ ] 利用する生成AI（API）
-- [ ] Word（.docx）生成方法（ライブラリ選定）
+> 生成AIの本番採用可否・セキュリティ確認は未完了のため、[requirements.md](requirements.md) 9章のチェック項目として引き続き管理する。
 
 ## コーディング規約（実装開始後に追記）
 
