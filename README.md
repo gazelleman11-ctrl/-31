@@ -4,7 +4,7 @@
 
 お客様からのクレーム内容の要点を入力すると、生成AIが**社外用**と**社内用**の報告書文面を自動整形し、最終的に**Word形式（.docx）**で出力できるようにするアプリです。
 
-要件定義・仕様整理（Phase 0）と技術スタック選定（Phase 1）は完了し、現在は [development_procedure.md](development_procedure.md) の **Phase 2：開発環境構築** まで完了しています。技術スタックは Streamlit（Python）＋ Anthropic Claude API（プロトタイプ採用）＋ `python-docx` です（詳細は [CLAUDE.md](CLAUDE.md)）。
+要件定義・仕様整理（Phase 0）、技術スタック選定（Phase 1）、開発環境構築（Phase 2）は完了し、現在は [development_procedure.md](development_procedure.md) の **Phase 3：入力画面の実装** まで完了しています。技術スタックは Streamlit（Python）＋ Anthropic Claude API（プロトタイプ採用）＋ `python-docx` です（詳細は [CLAUDE.md](CLAUDE.md)）。
 
 ## フォルダ構成とファイルの役割
 
@@ -57,11 +57,11 @@ streamlit run app.py
 - [x] 要件定義ドキュメントの初期ドラフト作成
 - [x] 使用する生成AI・技術スタックの選定（Phase 1）
 - [x] 開発環境構築（Phase 2：`app.py` / `requirements.txt` / `.env.example` / `.gitignore` / `pyproject.toml`）
-- [ ] 入力画面の実装（Phase 3）
+- [x] 入力画面の実装（Phase 3：`app.py` に全入力項目のフォームを実装、バリデーション動作を確認済み）
 - [ ] AI生成機能の実装（Phase 4）
 
 ## 次にやること（Next Steps）
 
-[development_procedure.md](development_procedure.md) の **Phase 3：入力画面の実装** に進みます。[ui_design.md](ui_design.md) の画面1のワイヤーフレームと [input_items.md](input_items.md) の入力形式に沿って、Streamlitの入力フォームを実装します。
+[development_procedure.md](development_procedure.md) の **Phase 4：AI生成機能の実装** に進みます。入力内容（`st.session_state["claim_data"]`）をAnthropic Claude APIに渡し、[output_format.md](output_format.md) の構成・文体ルールに沿った社外用・社内用の文面を生成する処理を実装します。
 
 > 迷ったときは、まず `requirements.md` に立ち返り、「このアプリは何のために存在するか」を確認してください。

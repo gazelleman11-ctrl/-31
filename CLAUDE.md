@@ -15,17 +15,16 @@
 
 ## 現在のフェーズ
 
-**[development_procedure.md](development_procedure.md) Phase 2（開発環境構築）完了、Phase 3（入力画面の実装）着手前**
+**[development_procedure.md](development_procedure.md) Phase 3（入力画面の実装）完了、Phase 4（AI生成機能の実装）着手前**
 
-要件定義（Phase 0）・技術スタック選定（Phase 1）に続き、Phase 2で以下を整備した。
+- Phase 2で `app.py` / `requirements.txt` / `.env.example` / `.gitignore` / `pyproject.toml` を整備済み。
+- Phase 3で `app.py` に [input_items.md](input_items.md) の全入力項目・入力形式（カレンダー、テキストエリア、複数選択、ラジオボタン、折りたたみセクション等）に沿った入力フォームを実装した。
+  - 必須項目（お客様名／取引先名、対応担当者、対象商品・サービス名、クレームの概要、発生経緯、お客様の要望、今後の対応予定）が未入力の場合はエラー表示する。
+  - 送信成功時は入力内容を `st.session_state["claim_data"]` に保持し、確認用にJSON表示する。
+  - AI生成・Word出力への接続はまだ行っていない（Phase 4・6で実装）。
+  - Streamlitの `AppTest`（`streamlit.testing.v1`）で、バリデーション動作と送信後のデータ保持を自動テストで確認済み。
 
-- `app.py`：Streamlitアプリのエントリーポイント（現時点は動作確認用の最小画面のみ）
-- `requirements.txt`：`streamlit` / `anthropic` / `python-docx` / `python-dotenv`
-- `.env.example`：APIキー等の環境変数のひな形（`ANTHROPIC_API_KEY`）。実際の値は `.env` に設定し、Gitにはコミットしない
-- `.gitignore`：`.env`、`.venv/`、生成される `.docx` ファイル等を除外
-- `pyproject.toml`：black／ruff（フォーマッタ・Lint）の最低限の設定
-
-`streamlit run app.py` でローカル起動し、ブラウザ表示・ヘルスチェックが正常に動作することを確認済み。次に取り組むのは Phase 3：入力画面の実装。
+次に取り組むのは Phase 4：AI生成機能の実装。
 
 ## 開発方針（実装フェーズに入ったら）
 
