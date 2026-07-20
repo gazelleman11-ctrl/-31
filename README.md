@@ -58,10 +58,13 @@ streamlit run app.py
 - [x] 使用する生成AI・技術スタックの選定（Phase 1）
 - [x] 開発環境構築（Phase 2：`app.py` / `requirements.txt` / `.env.example` / `.gitignore` / `pyproject.toml`）
 - [x] 入力画面の実装（Phase 3：`app.py` に全入力項目のフォームを実装、バリデーション動作を確認済み）
-- [ ] AI生成機能の実装（Phase 4）
+- [x] AI生成機能の実装（Phase 4：`report_generator.py` を実装、Claude API（`claude-haiku-4-5`）で社外用・社内用の文面を生成）
+- [ ] プレビュー・編集画面の実装（Phase 5）
 
 ## 次にやること（Next Steps）
 
-[development_procedure.md](development_procedure.md) の **Phase 4：AI生成機能の実装** に進みます。入力内容（`st.session_state["claim_data"]`）をAnthropic Claude APIに渡し、[output_format.md](output_format.md) の構成・文体ルールに沿った社外用・社内用の文面を生成する処理を実装します。
+[development_procedure.md](development_procedure.md) の **Phase 5：プレビュー・編集画面の実装** に進みます。
+
+> **要対応**：`.env` の `ANTHROPIC_API_KEY` に実際のAPIキーを設定し、実際に報告書が生成されることを確認してください（この開発環境には実キーがなく、成功パスは未検証です）。
 
 > 迷ったときは、まず `requirements.md` に立ち返り、「このアプリは何のために存在するか」を確認してください。

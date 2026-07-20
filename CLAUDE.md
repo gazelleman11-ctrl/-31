@@ -15,16 +15,18 @@
 
 ## 現在のフェーズ
 
-**[development_procedure.md](development_procedure.md) Phase 3（入力画面の実装）完了、Phase 4（AI生成機能の実装）着手前**
+**[development_procedure.md](development_procedure.md) Phase 4（AI生成機能の実装）完了、Phase 5（プレビュー・編集画面の実装）着手前**
 
 - Phase 2で `app.py` / `requirements.txt` / `.env.example` / `.gitignore` / `pyproject.toml` を整備済み。
-- Phase 3で `app.py` に [input_items.md](input_items.md) の全入力項目・入力形式（カレンダー、テキストエリア、複数選択、ラジオボタン、折りたたみセクション等）に沿った入力フォームを実装した。
-  - 必須項目（お客様名／取引先名、対応担当者、対象商品・サービス名、クレームの概要、発生経緯、お客様の要望、今後の対応予定）が未入力の場合はエラー表示する。
-  - 送信成功時は入力内容を `st.session_state["claim_data"]` に保持し、確認用にJSON表示する。
-  - AI生成・Word出力への接続はまだ行っていない（Phase 4・6で実装）。
-  - Streamlitの `AppTest`（`streamlit.testing.v1`）で、バリデーション動作と送信後のデータ保持を自動テストで確認済み。
+- Phase 3で `app.py` に [input_items.md](input_items.md) の全入力項目のフォームを実装済み（必須項目バリデーションつき）。
+- Phase 4で `report_generator.py` を新規作成し、Anthropic Claude API（`claude-haiku-4-5`。コスト最優先で採用、今後のモデル選定に応じて変更予定）を使って社外用・社内用の報告書文面を生成する処理を実装した。
+  - [output_format.md](output_format.md) の文体・構成ルールをシステムプロンプトに反映（社外用＝丁寧語・お詫び中心、社内用＝である調・事実区分）。
+  - `app.py` の送信成功時に、選択された出力設定（社外用／社内用／両方）に応じて生成を呼び出し、結果を `st.session_state["generated_reports"]` に保持して画面に表示する。
+  - `anthropic.AuthenticationError` / `anthropic.APIError` を捕捉し、APIキー未設定時にも分かりやすいエラーメッセージを表示する（実際に無効なキーでAPIへ到達しエラーハンドリングを確認済み）。
+  - **重要な修正**：`from report_generator import ...` が `load_dotenv()` より先に実行されると `.env` のAPIキー読み込み前にクライアントが初期化されてしまうバグを発見し、クライアント生成を呼び出し時（関数内）に遅延させる形で修正した。
+  - 実際の報告書生成（有効なAPIキーでの成功パス）は、この開発環境に実キーが設定されていないため未検証。ユーザー側で `.env` に実際のAPIキーを設定のうえ、動作確認が必要。
 
-次に取り組むのは Phase 4：AI生成機能の実装。
+次に取り組むのは Phase 5：プレビュー・編集画面の実装。
 
 ## 開発方針（実装フェーズに入ったら）
 

@@ -1,9 +1,12 @@
 from datetime import date
 
+import anthropic
 import streamlit as st
 from dotenv import load_dotenv
 
 load_dotenv()
+
+from report_generator import generate_report  # noqa: E402 (must load .env first)
 
 st.set_page_config(page_title="クレーム報告書自動整形アプリ")
 
@@ -19,7 +22,7 @@ IMPORTANCE_OPTIONS = ["高", "中", "低"]
 OUTPUT_OPTIONS = ["社外用", "社内用", "両方"]
 
 st.title("クレーム報告書自動整形アプリ")
-st.caption("* は必須項目です。入力後「AIで報告書を生成」を押してください（現時点ではAIによる生成・Word出力は未接続です）。")
+st.caption("* は必須項目です。入力後「AIで報告書を生成」を押してください（Word出力はまだ未接続です）。")
 
 with st.form("claim_input_form"):
     st.subheader("基本情報")
@@ -100,8 +103,34 @@ if submitted:
             "output_type": output_type,
             "file_name": file_name,
         }
-        st.success("入力内容を受け付けました。（AIによる文面生成・Word出力はPhase 4以降で実装予定です）")
+
+        report_types = {"社外用": ["社外用"], "社内用": ["社内用"], "両方": ["社外用", "社内用"]}[output_type]
+        generated_reports = {}
+        with st.spinner("AIが報告書を作成しています…"):
+            for report_type in report_types:
+                try:
+                    generated_reports[report_type] = generate_report(
+                        st.session_state["claim_data"], report_type
+                    )
+                except anthropic.AuthenticationError:
+                    st.error(
+                        "AIへの接続に失敗しました。.env の ANTHROPIC_API_KEY が正しく設定されているか確認してください。"
+                    )
+                    break
+                except anthropic.APIError as e:
+                    st.error(f"AIによる報告書生成でエラーが発生しました: {e}")
+                    break
+
+        if generated_reports:
+            st.session_state["generated_reports"] = generated_reports
+            st.success("報告書を生成しました。（Word出力はPhase 6以降で実装予定です）")
 
 if "claim_data" in st.session_state:
     st.subheader("保持されている入力内容（確認用）")
     st.json(st.session_state["claim_data"])
+
+if "generated_reports" in st.session_state:
+    st.subheader("AIが生成した報告書")
+    for report_type, text in st.session_state["generated_reports"].items():
+        st.markdown(f"**{report_type}報告書**")
+        st.text_area(f"{report_type}報告書の内容", value=text, height=300, key=f"generated_{report_type}")
