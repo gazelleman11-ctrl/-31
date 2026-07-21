@@ -21,7 +21,10 @@ def _try_generate(report_type):
     try:
         return generate_report(st.session_state["claim_data"], report_type), None
     except anthropic.AuthenticationError:
-        return None, "AIへの接続に失敗しました。.env のAPIキーが正しく設定されているか確認してください。"
+        return (
+            None,
+            "AIへの接続に失敗しました。.env のAPIキーが正しく設定されているか確認してください。",
+        )
     except anthropic.APIError as e:
         return None, f"AIによる報告書生成でエラーが発生しました: {e}"
     except NotImplementedError as e:
@@ -119,7 +122,9 @@ if submitted:
             "file_name": file_name,
         }
 
-        report_types = {"社外用": ["社外用"], "社内用": ["社内用"], "両方": ["社外用", "社内用"]}[output_type]
+        report_types = {"社外用": ["社外用"], "社内用": ["社内用"], "両方": ["社外用", "社内用"]}[
+            output_type
+        ]
         generated_reports = {}
         with st.spinner("AIが報告書を作成しています…"):
             for report_type in report_types:
@@ -156,7 +161,7 @@ if "generated_reports" in st.session_state:
                 st.session_state[f"edited_{report_type}"] = text
 
     st.subheader("AIが生成した報告書")
-    st.caption("内容を確認し、必要に応じて編集してください。編集した内容は今後のWord出力（Phase 6）に使用されます。")
+    st.caption("内容を確認し、必要に応じて編集してください。編集した内容がWord出力に使用されます。")
 
     tabs = st.tabs(report_types) if len(report_types) > 1 else [st.container()]
     for report_type, tab in zip(report_types, tabs):

@@ -88,7 +88,9 @@ def format_claim_data(claim_data: dict) -> str:
 
 
 def build_user_content(claim_data: dict) -> str:
-    return "以下のクレーム情報をもとに、報告書を作成してください。\n\n" + format_claim_data(claim_data)
+    return "以下のクレーム情報をもとに、報告書を作成してください。\n\n" + format_claim_data(
+        claim_data
+    )
 
 
 def system_prompt_for(report_type: str) -> str:

@@ -15,31 +15,23 @@
 
 ## 現在のフェーズ
 
-**[development_procedure.md](development_procedure.md) Phase 6（Word出力機能の実装）完了、Phase 7（結合テスト・受け入れ確認）着手前**
+**[development_procedure.md](development_procedure.md) Phase 7（結合テスト・受け入れ確認）完了、Phase 8（リリース準備）着手前**
 
-- Phase 6で `word_export.py` を新規作成し、`python-docx` で編集済み文面から `.docx` を生成する処理を実装した。
-  - [output_format.md](output_format.md) 4章の仕様に準拠：A4縦向き、フォント「MS明朝」（ascii・東アジア文字の両方に設定）、ファイル名規則 `YYYYMMDD_クレーム報告書_社外用_お客様名.docx` / `YYYYMMDD_クレーム報告書_社内用.docx`（ユーザーがファイル名を指定した場合はそちらを優先）。
-  - `app.py` のプレビュー・編集タブの下に「Word出力」セクションを追加し、`st.download_button` で社外用・社内用それぞれの `.docx` をダウンロードできるようにした。ダウンロードされる内容は常に**編集済みテキスト**（`st.session_state["edited_{報告書種別}"]`）を使用する。
-  - **見つけて修正したバグ**：python-docxでは `Style.font` が包む内部要素が `<w:style>` であり `<w:rPr>` ではないため、東アジア文字用フォント（`w:eastAsia`）を設定する際に単純に `font._element.find(...)` すると要素が見つからなかった。`style.element.get_or_add_rPr()` 経由で正しくrPr要素を取得するよう修正した。
-  - 検証：`word_export.py` の単体テストで、生成した `.docx` が実際にpython-docxで再読み込みでき、A4サイズ・MS明朝フォント（ascii/eastAsia双方）・ファイル名規則が期待通りであることを確認。`report_generator.generate_report` と `word_export.build_docx_bytes`/`build_filename` をモック化した `AppTest` で、編集した内容が実際にWord出力に渡ること、未編集の報告書は元のAI生成文面のまま出力されることを確認済み。
+各Phaseの実装内容・見つけたバグ・検証方法の詳細は [development_procedure.md](development_procedure.md) の該当セクションに記録している（このファイルでは重複記載しない）。実装済みファイル構成：
 
-- Phase 5で `app.py` にプレビュー・編集画面を実装した。
-  - 出力設定が「両方」の場合は `st.tabs` で社外用／社内用を切り替え表示、1種類のみの場合はタブなしで表示する。
-  - 生成結果は `st.text_area`（`key="edited_{報告書種別}"`）で直接編集可能。編集内容はセッション中保持され、以後のWord出力（Phase 6）で参照する想定。
-  - 報告書種別ごとに「🔄 再生成」ボタンを実装。クリック時は `pending_regenerate_{報告書種別}` フラグを立てて `st.rerun()` し、text_areaウィジェットを生成する**前**に再生成処理を行う設計にしている（生成済みウィジェットのsession_stateを直接書き換えるとStreamlitが例外を出すための回避策）。
-  - `report_generator.generate_report` をモック化した `streamlit.testing.v1.AppTest` で、1種類のみ生成時の編集保持、2種類（タブ）生成時の相互独立性、再生成ボタンが他方の編集内容を壊さないことを確認済み。
+| ファイル／ディレクトリ | 役割 |
+|---|---|
+| `app.py` | Streamlit UI一式（入力フォーム→AI生成→プレビュー編集→Word出力） |
+| `report_generator.py` / `providers/` | 生成AI呼び出し。プロバイダー切り替え可能（`.env` の `AI_PROVIDER`、現在は Anthropic Claude API `claude-haiku-4-5` のみ実装、OpenAI/Geminiは未実装スタブ） |
+| `word_export.py` | 編集済み文面から Word（.docx）を生成 |
+| `tests/test_end_to_end.py` | 結合テスト（`pytest` + `streamlit.testing.v1.AppTest`、正常系3・異常系2パターン） |
+| `requirements-dev.txt` | 開発用依存（`pytest` / `black` / `ruff`） |
 
-- Phase 2で `app.py` / `requirements.txt` / `.env.example` / `.gitignore` / `pyproject.toml` を整備済み。
-- Phase 3で `app.py` に [input_items.md](input_items.md) の全入力項目のフォームを実装済み（必須項目バリデーションつき）。
-- Phase 4で `report_generator.py` を新規作成し、生成AIを使って社外用・社内用の報告書文面を生成する処理を実装した。
-  - [output_format.md](output_format.md) の文体・構成ルールをシステムプロンプトに反映（社外用＝丁寧語・お詫び中心、社内用＝である調・事実区分）。
-  - `app.py` の送信成功時に、選択された出力設定（社外用／社内用／両方）に応じて生成を呼び出し、結果を `st.session_state["generated_reports"]` に保持して画面に表示する。
-  - **プロバイダー切り替えの受け皿**：`providers/` パッケージを新設し、生成AIの呼び出し部分をプロバイダーごとのモジュールに分離した（`providers/anthropic_provider.py` / `providers/openai_provider.py` / `providers/gemini_provider.py`）。現在は環境変数 `AI_PROVIDER`（.env、デフォルト `anthropic`）で選択し、Anthropic Claude API（`claude-haiku-4-5`、コスト最優先で検証段階として採用）のみ実装済み。OpenAI・Geminiは未実装のスタブ（呼び出すと分かりやすいメッセージ付きの `NotImplementedError`）。精度・金額感を検証した結果、別プロバイダーに切り替える場合は該当モジュールの `generate(system_prompt, user_content) -> str` を実装し、`.env` の `AI_PROVIDER` を切り替えるだけでよい構成にしてある。プロンプト生成ロジック（`providers/prompts.py`）はプロバイダー非依存で共通利用する。
-  - `anthropic.AuthenticationError` / `anthropic.APIError` に加え、`NotImplementedError`（未実装プロバイダー）・その他の例外も `app.py` 側で捕捉し、分かりやすいエラーメッセージを表示する（実際に無効なキーでAPIへ到達しエラーハンドリングを確認済み）。
-  - **重要な修正**：`from report_generator import ...` が `load_dotenv()` より先に実行されると `.env` のAPIキー読み込み前にクライアントが初期化されてしまうバグを発見し、クライアント生成を呼び出し時（関数内）に遅延させる形で修正した。
-  - 実際の報告書生成（有効なAPIキーでの成功パス）は、この開発環境に実キーが設定されていないため未検証。ユーザー側で `.env` に実際のAPIキーを設定のうえ、動作確認が必要。
+**未対応・要フォロー事項**
+- [ ] 実際のAPIキーでの動作確認（この開発環境には実キーがなく、AI生成の成功パスは未検証）
+- [ ] 実際の利用者（クレーム対応担当者等）によるレビュー・フィードバック反映（Phase 7の一部、AIアシスタントでは代行不可）
 
-次に取り組むのは Phase 7：結合テスト・受け入れ確認。
+次に取り組むのは Phase 8：リリース準備。
 
 ## 開発方針（実装フェーズに入ったら）
 
