@@ -15,7 +15,13 @@
 
 ## 現在のフェーズ
 
-**[development_procedure.md](development_procedure.md) Phase 5（プレビュー・編集画面の実装）完了、Phase 6（Word出力機能の実装）着手前**
+**[development_procedure.md](development_procedure.md) Phase 6（Word出力機能の実装）完了、Phase 7（結合テスト・受け入れ確認）着手前**
+
+- Phase 6で `word_export.py` を新規作成し、`python-docx` で編集済み文面から `.docx` を生成する処理を実装した。
+  - [output_format.md](output_format.md) 4章の仕様に準拠：A4縦向き、フォント「MS明朝」（ascii・東アジア文字の両方に設定）、ファイル名規則 `YYYYMMDD_クレーム報告書_社外用_お客様名.docx` / `YYYYMMDD_クレーム報告書_社内用.docx`（ユーザーがファイル名を指定した場合はそちらを優先）。
+  - `app.py` のプレビュー・編集タブの下に「Word出力」セクションを追加し、`st.download_button` で社外用・社内用それぞれの `.docx` をダウンロードできるようにした。ダウンロードされる内容は常に**編集済みテキスト**（`st.session_state["edited_{報告書種別}"]`）を使用する。
+  - **見つけて修正したバグ**：python-docxでは `Style.font` が包む内部要素が `<w:style>` であり `<w:rPr>` ではないため、東アジア文字用フォント（`w:eastAsia`）を設定する際に単純に `font._element.find(...)` すると要素が見つからなかった。`style.element.get_or_add_rPr()` 経由で正しくrPr要素を取得するよう修正した。
+  - 検証：`word_export.py` の単体テストで、生成した `.docx` が実際にpython-docxで再読み込みでき、A4サイズ・MS明朝フォント（ascii/eastAsia双方）・ファイル名規則が期待通りであることを確認。`report_generator.generate_report` と `word_export.build_docx_bytes`/`build_filename` をモック化した `AppTest` で、編集した内容が実際にWord出力に渡ること、未編集の報告書は元のAI生成文面のまま出力されることを確認済み。
 
 - Phase 5で `app.py` にプレビュー・編集画面を実装した。
   - 出力設定が「両方」の場合は `st.tabs` で社外用／社内用を切り替え表示、1種類のみの場合はタブなしで表示する。
@@ -33,7 +39,7 @@
   - **重要な修正**：`from report_generator import ...` が `load_dotenv()` より先に実行されると `.env` のAPIキー読み込み前にクライアントが初期化されてしまうバグを発見し、クライアント生成を呼び出し時（関数内）に遅延させる形で修正した。
   - 実際の報告書生成（有効なAPIキーでの成功パス）は、この開発環境に実キーが設定されていないため未検証。ユーザー側で `.env` に実際のAPIキーを設定のうえ、動作確認が必要。
 
-次に取り組むのは Phase 6：Word出力機能の実装。
+次に取り組むのは Phase 7：結合テスト・受け入れ確認。
 
 ## 開発方針（実装フェーズに入ったら）
 

@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from report_generator import generate_report  # noqa: E402 (must load .env first)
+from word_export import build_docx_bytes, build_filename  # noqa: E402
 
 st.set_page_config(page_title="クレーム報告書自動整形アプリ")
 
@@ -36,7 +37,7 @@ IMPORTANCE_OPTIONS = ["高", "中", "低"]
 OUTPUT_OPTIONS = ["社外用", "社内用", "両方"]
 
 st.title("クレーム報告書自動整形アプリ")
-st.caption("* は必須項目です。入力後「AIで報告書を生成」を押してください（Word出力はまだ未接続です）。")
+st.caption("* は必須項目です。入力後「AIで報告書を生成」を押してください。")
 
 with st.form("claim_input_form"):
     st.subheader("基本情報")
@@ -131,7 +132,7 @@ if submitted:
 
         if generated_reports:
             st.session_state["generated_reports"] = generated_reports
-            st.success("報告書を生成しました。内容を確認・編集してください。（Word出力はPhase 6以降で実装予定です）")
+            st.success("報告書を生成しました。内容を確認・編集してください。")
 
 if "claim_data" in st.session_state:
     st.subheader("保持されている入力内容（確認用）")
@@ -174,3 +175,16 @@ if "generated_reports" in st.session_state:
             if st.button(f"🔄 {report_type}報告書を再生成", key=f"regenerate_btn_{report_type}"):
                 st.session_state[f"pending_regenerate_{report_type}"] = True
                 st.rerun()
+
+    st.subheader("Word出力")
+    for report_type in report_types:
+        edited_text = st.session_state[f"edited_{report_type}"]
+        docx_bytes = build_docx_bytes(edited_text)
+        filename = build_filename(st.session_state["claim_data"], report_type)
+        st.download_button(
+            label=f"⬇ {report_type}報告書（{filename}）をダウンロード",
+            data=docx_bytes,
+            file_name=filename,
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            key=f"download_{report_type}",
+        )

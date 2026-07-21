@@ -4,7 +4,7 @@
 
 お客様からのクレーム内容の要点を入力すると、生成AIが**社外用**と**社内用**の報告書文面を自動整形し、最終的に**Word形式（.docx）**で出力できるようにするアプリです。
 
-要件定義・仕様整理（Phase 0）〜AI生成機能の実装（Phase 4）まで完了しています（[development_procedure.md](development_procedure.md)）。技術スタックは Streamlit（Python）＋ Anthropic Claude API（`claude-haiku-4-5`、検証段階として採用）＋ `python-docx` です（詳細は [CLAUDE.md](CLAUDE.md)）。生成AIは `providers/` パッケージで切り替え可能な構成にしており、将来OpenAI APIやGemini APIへ切り替える余地を残しています。
+要件定義・仕様整理（Phase 0）〜Word出力機能の実装（Phase 6）まで完了しています（[development_procedure.md](development_procedure.md)）。技術スタックは Streamlit（Python）＋ Anthropic Claude API（`claude-haiku-4-5`、検証段階として採用）＋ `python-docx` です（詳細は [CLAUDE.md](CLAUDE.md)）。生成AIは `providers/` パッケージで切り替え可能な構成にしており、将来OpenAI APIやGemini APIへ切り替える余地を残しています。
 
 ## フォルダ構成とファイルの役割
 
@@ -23,6 +23,7 @@
 | [pyproject.toml](pyproject.toml) | black／ruff（フォーマッタ・Lint）の設定 |
 | [report_generator.py](report_generator.py) | 入力内容から報告書文面を生成する処理の呼び出し口（プロバイダーへディスパッチ） |
 | [providers/](providers/) | 生成AIプロバイダーの切り替え口。`prompts.py`（共通プロンプト生成）、`anthropic_provider.py`（実装済み）、`openai_provider.py`／`gemini_provider.py`（未実装スタブ） |
+| [word_export.py](word_export.py) | 編集済みの報告書文面から `.docx` ファイル（A4・MS明朝）を生成する処理 |
 
 ### 読む順番（初めての方向け）
 
@@ -63,11 +64,12 @@ streamlit run app.py
 - [x] 入力画面の実装（Phase 3：`app.py` に全入力項目のフォームを実装、バリデーション動作を確認済み）
 - [x] AI生成機能の実装（Phase 4：`report_generator.py` + `providers/` を実装、Claude API（`claude-haiku-4-5`）で社外用・社内用の文面を生成。プロバイダー切り替え可能な構成）
 - [x] プレビュー・編集画面の実装（Phase 5：タブ切り替え・編集可能なtext_area・再生成ボタンを実装）
-- [ ] Word出力機能の実装（Phase 6）
+- [x] Word出力機能の実装（Phase 6：`word_export.py` を実装、編集済み文面から `.docx` をダウンロード可能に）
+- [ ] 結合テスト・受け入れ確認（Phase 7）
 
 ## 次にやること（Next Steps）
 
-[development_procedure.md](development_procedure.md) の **Phase 6：Word出力機能の実装** に進みます。
+[development_procedure.md](development_procedure.md) の **Phase 7：結合テスト・受け入れ確認** に進みます。実際のクレーム事例（ダミーデータ）で入力〜生成〜編集〜Word出力までの一連の流れを通しテストします。
 
 > **要対応**：`.env` の `ANTHROPIC_API_KEY` に実際のAPIキーを設定し、実際に報告書が生成されることを確認してください（この開発環境には実キーがなく、成功パスは未検証です）。
 
