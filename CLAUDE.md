@@ -15,7 +15,13 @@
 
 ## 現在のフェーズ
 
-**[development_procedure.md](development_procedure.md) Phase 4（AI生成機能の実装）完了、Phase 5（プレビュー・編集画面の実装）着手前**
+**[development_procedure.md](development_procedure.md) Phase 5（プレビュー・編集画面の実装）完了、Phase 6（Word出力機能の実装）着手前**
+
+- Phase 5で `app.py` にプレビュー・編集画面を実装した。
+  - 出力設定が「両方」の場合は `st.tabs` で社外用／社内用を切り替え表示、1種類のみの場合はタブなしで表示する。
+  - 生成結果は `st.text_area`（`key="edited_{報告書種別}"`）で直接編集可能。編集内容はセッション中保持され、以後のWord出力（Phase 6）で参照する想定。
+  - 報告書種別ごとに「🔄 再生成」ボタンを実装。クリック時は `pending_regenerate_{報告書種別}` フラグを立てて `st.rerun()` し、text_areaウィジェットを生成する**前**に再生成処理を行う設計にしている（生成済みウィジェットのsession_stateを直接書き換えるとStreamlitが例外を出すための回避策）。
+  - `report_generator.generate_report` をモック化した `streamlit.testing.v1.AppTest` で、1種類のみ生成時の編集保持、2種類（タブ）生成時の相互独立性、再生成ボタンが他方の編集内容を壊さないことを確認済み。
 
 - Phase 2で `app.py` / `requirements.txt` / `.env.example` / `.gitignore` / `pyproject.toml` を整備済み。
 - Phase 3で `app.py` に [input_items.md](input_items.md) の全入力項目のフォームを実装済み（必須項目バリデーションつき）。
@@ -27,7 +33,7 @@
   - **重要な修正**：`from report_generator import ...` が `load_dotenv()` より先に実行されると `.env` のAPIキー読み込み前にクライアントが初期化されてしまうバグを発見し、クライアント生成を呼び出し時（関数内）に遅延させる形で修正した。
   - 実際の報告書生成（有効なAPIキーでの成功パス）は、この開発環境に実キーが設定されていないため未検証。ユーザー側で `.env` に実際のAPIキーを設定のうえ、動作確認が必要。
 
-次に取り組むのは Phase 5：プレビュー・編集画面の実装。
+次に取り組むのは Phase 6：Word出力機能の実装。
 
 ## 開発方針（実装フェーズに入ったら）
 

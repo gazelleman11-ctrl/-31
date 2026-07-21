@@ -62,11 +62,12 @@ streamlit run app.py
 - [x] 開発環境構築（Phase 2：`app.py` / `requirements.txt` / `.env.example` / `.gitignore` / `pyproject.toml`）
 - [x] 入力画面の実装（Phase 3：`app.py` に全入力項目のフォームを実装、バリデーション動作を確認済み）
 - [x] AI生成機能の実装（Phase 4：`report_generator.py` + `providers/` を実装、Claude API（`claude-haiku-4-5`）で社外用・社内用の文面を生成。プロバイダー切り替え可能な構成）
-- [ ] プレビュー・編集画面の実装（Phase 5）
+- [x] プレビュー・編集画面の実装（Phase 5：タブ切り替え・編集可能なtext_area・再生成ボタンを実装）
+- [ ] Word出力機能の実装（Phase 6）
 
 ## 次にやること（Next Steps）
 
-[development_procedure.md](development_procedure.md) の **Phase 5：プレビュー・編集画面の実装** に進みます。
+[development_procedure.md](development_procedure.md) の **Phase 6：Word出力機能の実装** に進みます。
 
 > **要対応**：`.env` の `ANTHROPIC_API_KEY` に実際のAPIキーを設定し、実際に報告書が生成されることを確認してください（この開発環境には実キーがなく、成功パスは未検証です）。
 

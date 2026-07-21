@@ -15,6 +15,20 @@ def _isoformat_or_none(value):
     return value.isoformat() if value else None
 
 
+def _try_generate(report_type):
+    """成功時は (text, None)、失敗時は (None, エラーメッセージ) を返す。"""
+    try:
+        return generate_report(st.session_state["claim_data"], report_type), None
+    except anthropic.AuthenticationError:
+        return None, "AIへの接続に失敗しました。.env のAPIキーが正しく設定されているか確認してください。"
+    except anthropic.APIError as e:
+        return None, f"AIによる報告書生成でエラーが発生しました: {e}"
+    except NotImplementedError as e:
+        return None, str(e)
+    except Exception as e:
+        return None, f"想定外のエラーが発生しました: {e}"
+
+
 STATUS_OPTIONS = ["未対応", "対応中", "対応済み"]
 REQUEST_OPTIONS = ["返金", "交換", "謝罪", "説明", "再発防止策の提示", "その他"]
 SHARE_OPTIONS = ["品質管理部", "営業部", "上長", "その他"]
@@ -108,35 +122,55 @@ if submitted:
         generated_reports = {}
         with st.spinner("AIが報告書を作成しています…"):
             for report_type in report_types:
-                try:
-                    generated_reports[report_type] = generate_report(
-                        st.session_state["claim_data"], report_type
-                    )
-                except anthropic.AuthenticationError:
-                    st.error(
-                        "AIへの接続に失敗しました。.env のAPIキーが正しく設定されているか確認してください。"
-                    )
+                text, error = _try_generate(report_type)
+                if error:
+                    st.error(error)
                     break
-                except anthropic.APIError as e:
-                    st.error(f"AIによる報告書生成でエラーが発生しました: {e}")
-                    break
-                except NotImplementedError as e:
-                    st.error(str(e))
-                    break
-                except Exception as e:
-                    st.error(f"想定外のエラーが発生しました: {e}")
-                    break
+                generated_reports[report_type] = text
+                st.session_state[f"edited_{report_type}"] = text
 
         if generated_reports:
             st.session_state["generated_reports"] = generated_reports
-            st.success("報告書を生成しました。（Word出力はPhase 6以降で実装予定です）")
+            st.success("報告書を生成しました。内容を確認・編集してください。（Word出力はPhase 6以降で実装予定です）")
 
 if "claim_data" in st.session_state:
     st.subheader("保持されている入力内容（確認用）")
     st.json(st.session_state["claim_data"])
 
 if "generated_reports" in st.session_state:
+    report_types = list(st.session_state["generated_reports"].keys())
+
+    # 再生成ボタンの処理は、対応するtext_areaウィジェットを生成する前に行う。
+    # （生成済みウィジェットのsession_stateを後から書き換えるとStreamlitがエラーになるため）
+    for report_type in report_types:
+        pending_key = f"pending_regenerate_{report_type}"
+        if st.session_state.get(pending_key):
+            st.session_state[pending_key] = False
+            with st.spinner(f"{report_type}報告書を再生成しています…"):
+                text, error = _try_generate(report_type)
+            if error:
+                st.session_state[f"regen_error_{report_type}"] = error
+            else:
+                st.session_state["generated_reports"][report_type] = text
+                st.session_state[f"edited_{report_type}"] = text
+
     st.subheader("AIが生成した報告書")
-    for report_type, text in st.session_state["generated_reports"].items():
-        st.markdown(f"**{report_type}報告書**")
-        st.text_area(f"{report_type}報告書の内容", value=text, height=300, key=f"generated_{report_type}")
+    st.caption("内容を確認し、必要に応じて編集してください。編集した内容は今後のWord出力（Phase 6）に使用されます。")
+
+    tabs = st.tabs(report_types) if len(report_types) > 1 else [st.container()]
+    for report_type, tab in zip(report_types, tabs):
+        with tab:
+            edit_key = f"edited_{report_type}"
+            if edit_key not in st.session_state:
+                st.session_state[edit_key] = st.session_state["generated_reports"][report_type]
+
+            error_key = f"regen_error_{report_type}"
+            if st.session_state.get(error_key):
+                st.error(st.session_state[error_key])
+                st.session_state[error_key] = None
+
+            st.text_area(f"{report_type}報告書の内容", height=350, key=edit_key)
+
+            if st.button(f"🔄 {report_type}報告書を再生成", key=f"regenerate_btn_{report_type}"):
+                st.session_state[f"pending_regenerate_{report_type}"] = True
+                st.rerun()
