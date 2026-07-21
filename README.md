@@ -4,7 +4,7 @@
 
 お客様からのクレーム内容の要点を入力すると、生成AIが**社外用**と**社内用**の報告書文面を自動整形し、最終的に**Word形式（.docx）**で出力できるようにするアプリです。
 
-要件定義・仕様整理（Phase 0）、技術スタック選定（Phase 1）、開発環境構築（Phase 2）は完了し、現在は [development_procedure.md](development_procedure.md) の **Phase 3：入力画面の実装** まで完了しています。技術スタックは Streamlit（Python）＋ Anthropic Claude API（プロトタイプ採用）＋ `python-docx` です（詳細は [CLAUDE.md](CLAUDE.md)）。
+要件定義・仕様整理（Phase 0）〜AI生成機能の実装（Phase 4）まで完了しています（[development_procedure.md](development_procedure.md)）。技術スタックは Streamlit（Python）＋ Anthropic Claude API（`claude-haiku-4-5`、検証段階として採用）＋ `python-docx` です（詳細は [CLAUDE.md](CLAUDE.md)）。生成AIは `providers/` パッケージで切り替え可能な構成にしており、将来OpenAI APIやGemini APIへ切り替える余地を残しています。
 
 ## フォルダ構成とファイルの役割
 
@@ -21,6 +21,8 @@
 | [requirements.txt](requirements.txt) | Pythonの依存パッケージ一覧 |
 | [.env.example](.env.example) | 環境変数（APIキー等）のひな形。コピーして `.env` を作成する |
 | [pyproject.toml](pyproject.toml) | black／ruff（フォーマッタ・Lint）の設定 |
+| [report_generator.py](report_generator.py) | 入力内容から報告書文面を生成する処理の呼び出し口（プロバイダーへディスパッチ） |
+| [providers/](providers/) | 生成AIプロバイダーの切り替え口。`prompts.py`（共通プロンプト生成）、`anthropic_provider.py`（実装済み）、`openai_provider.py`／`gemini_provider.py`（未実装スタブ） |
 
 ### 読む順番（初めての方向け）
 
@@ -44,6 +46,7 @@ pip install -r requirements.txt
 # 3. 環境変数ファイルを用意（初回のみ）
 cp .env.example .env
 # .env を開き、ANTHROPIC_API_KEY に実際のAPIキーを設定する
+# （AI_PROVIDER で使用する生成AIプロバイダーを切り替え可能。現在は anthropic のみ実装済み）
 
 # 4. アプリを起動
 streamlit run app.py
@@ -58,7 +61,7 @@ streamlit run app.py
 - [x] 使用する生成AI・技術スタックの選定（Phase 1）
 - [x] 開発環境構築（Phase 2：`app.py` / `requirements.txt` / `.env.example` / `.gitignore` / `pyproject.toml`）
 - [x] 入力画面の実装（Phase 3：`app.py` に全入力項目のフォームを実装、バリデーション動作を確認済み）
-- [x] AI生成機能の実装（Phase 4：`report_generator.py` を実装、Claude API（`claude-haiku-4-5`）で社外用・社内用の文面を生成）
+- [x] AI生成機能の実装（Phase 4：`report_generator.py` + `providers/` を実装、Claude API（`claude-haiku-4-5`）で社外用・社内用の文面を生成。プロバイダー切り替え可能な構成）
 - [ ] プレビュー・編集画面の実装（Phase 5）
 
 ## 次にやること（Next Steps）

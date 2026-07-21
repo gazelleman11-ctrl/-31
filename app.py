@@ -114,11 +114,17 @@ if submitted:
                     )
                 except anthropic.AuthenticationError:
                     st.error(
-                        "AIへの接続に失敗しました。.env の ANTHROPIC_API_KEY が正しく設定されているか確認してください。"
+                        "AIへの接続に失敗しました。.env のAPIキーが正しく設定されているか確認してください。"
                     )
                     break
                 except anthropic.APIError as e:
                     st.error(f"AIによる報告書生成でエラーが発生しました: {e}")
+                    break
+                except NotImplementedError as e:
+                    st.error(str(e))
+                    break
+                except Exception as e:
+                    st.error(f"想定外のエラーが発生しました: {e}")
                     break
 
         if generated_reports:
